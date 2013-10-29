@@ -15,7 +15,6 @@ class TestScash < Minitest::Test
         assert_equal %w(a), scash.keys
 
         scash.with({"a" => 2}) do
-
           assert_equal 2, scash[:a]
           assert_equal %w(a), scash.keys
         end

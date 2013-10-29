@@ -8,6 +8,8 @@ class Scash
   delegate  :each, :empty?, :eql?, :has_key?, :has_value?, :include?, :index,
             :keys, :merge, :reject, :replace, :select, :size, :values, :to => :to_hash
 
+  attr_reader :stack
+
   def initialize(variables = {})
     raise NotImplementedError if variables.any?
     @stack, @hashes, @inverse_hashes = [], [{}], [{}]
@@ -25,21 +27,13 @@ class Scash
     @stack.unshift variables.with_indifferent_access
     @hashes.unshift build_hash
     @inverse_hashes.unshift build_inverse_hash
-    before_scope
     yield
   ensure
     @stack.shift
     @hashes.shift
     @inverse_hashes.shift
-    after_scope
   end
   alias :with :scope
-
-  def before_scope
-  end
-
-  def after_scope
-  end
 
   def [](key, inverse = false)
     if inverse
