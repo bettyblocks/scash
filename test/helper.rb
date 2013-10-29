@@ -1,5 +1,6 @@
 $TESTING = true
 require 'coveralls'
+
 Coveralls.wear! do
   add_filter "/test/"
 end
@@ -19,5 +20,5 @@ end
 
 require 'scash'
 
-require 'minitest'
+require 'minitest/autorun'
 require 'minitest/pride'
