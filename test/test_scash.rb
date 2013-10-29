@@ -30,6 +30,16 @@ class TestScash < Minitest::Test
       end
       assert_equal %w(), scash.keys
     end
+
+    it "should keep scope instact when an error occurs" do
+      scash = Scash.new
+      begin
+        scash.with(["a" => 1]) do # this triggers error
+        end
+      rescue
+      end
+      assert_equal({}, scash.to_hash)
+    end
   end
 
   describe "behave like a hash" do
@@ -40,5 +50,4 @@ class TestScash < Minitest::Test
       end
     end
   end
-
 end

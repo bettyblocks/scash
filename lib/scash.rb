@@ -24,14 +24,15 @@ class Scash
   end
 
   def scope(variables)
-    @stack.unshift variables.with_indifferent_access
-    @hashes.unshift build_hash
-    @inverse_hashes.unshift build_inverse_hash
+    _stack, _hashes, _inverse_hashes = false
+    @stack.unshift(variables.with_indifferent_access) && _stack = true
+    @hashes.unshift(build_hash) && _hashes = true
+    @inverse_hashes.unshift(build_inverse_hash) && _inverse_hashes = true
     yield
   ensure
-    @stack.shift
-    @hashes.shift
-    @inverse_hashes.shift
+    @stack.shift if _stack
+    @hashes.shift if _hashes
+    @inverse_hashes.shift if _inverse_hashes
   end
   alias :with :scope
 
