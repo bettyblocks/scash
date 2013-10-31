@@ -12,26 +12,27 @@ class Scash
 
   def initialize(variables = {})
     raise NotImplementedError if variables.any?
-    @stack, @hashes, @inverse_hashes = [], [{}], [{}]
+    @stack = []
   end
 
   def to_hash
-    @hashes[0]
+    @stack.inject(HashWithIndifferentAccess.new) do |hash, variables|
+      variables.merge hash
+    end
   end
 
   def to_inverse_hash
-    @inverse_hashes[0]
+    @stack.inject(HashWithIndifferentAccess.new) do |hash, variables|
+      hash.merge variables
+    end
   end
 
   def scope(variables)
     @stack.unshift variables.with_indifferent_access
-    @hashes.unshift build_hash
-    @inverse_hashes.unshift build_inverse_hash
+    unshifted = true
     yield
   ensure
-    @stack.shift
-    @hashes.shift
-    @inverse_hashes.shift
+    @stack.shift if unshifted
   end
   alias :with :scope
 
@@ -43,17 +44,11 @@ class Scash
     end
   end
 
-private
-
-  def build_hash
-    @stack.inject({}) do |hash, variables|
-      variables.merge hash
-    end
+  def define_global_variable(key, value)
+    define_global_variables key => value
   end
 
-  def build_inverse_hash
-    @stack.inject({}) do |hash, variables|
-      hash.merge variables
-    end
+  def define_global_variables(variables)
+    @stack.push variables.with_indifferent_access
   end
 end
