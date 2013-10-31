@@ -29,10 +29,9 @@ class Scash
 
   def scope(variables)
     @stack.unshift variables.with_indifferent_access
-    unshifted = true
     yield
   ensure
-    @stack.shift if unshifted
+    @stack.shift
   end
   alias :with :scope
 

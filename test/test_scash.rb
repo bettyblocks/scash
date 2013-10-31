@@ -51,6 +51,16 @@ class TestScash < Minitest::Test
       assert_equal %w(), scash.keys
     end
 
+    it "should keep scope instact when an error occurs" do
+      scash = Scash.new
+      assert_raises(NoMethodError) do
+        scash.with(["a" => 1]) do
+        end
+      end
+
+      assert_equal({}, scash.to_hash)
+    end
+
     it "should reuse instances" do
       class Foo
         attr_accessor :bar
