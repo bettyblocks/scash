@@ -11,8 +11,7 @@ class Scash
   attr_reader :stack
 
   def initialize(variables = {})
-    raise NotImplementedError if variables.any?
-    @stack = []
+    @stack = [variables.with_indifferent_access]
   end
 
   def to_hash

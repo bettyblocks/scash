@@ -61,6 +61,19 @@ class TestScash < Minitest::Test
       assert_equal({}, scash.to_hash)
     end
 
+    it "should accept variables in initializer" do
+      scash = Scash.new({:a => 1})
+      assert_equal 1, scash[:a]
+      assert_equal({"a" => 1}, scash.to_hash)
+      scash.with({:b => 2}) do
+        assert_equal 1, scash[:a]
+        assert_equal 2, scash[:b]
+        scash.define_global_variables :c => 3
+      end
+      assert_equal 1, scash[:a]
+      assert_equal 3, scash[:c]
+    end
+
     it "should reuse instances" do
       class Foo
         attr_accessor :bar
