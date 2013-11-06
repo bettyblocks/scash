@@ -48,6 +48,16 @@ class Scash
   end
 
   def define_global_variables(variables)
+    variables.each do |key, value|
+      delete_key(key)
+    end
+
     @stack.push variables.with_indifferent_access
+  end
+
+  private
+
+  def delete_key(key)
+    @stack.each{|hash|hash.delete(key)}
   end
 end

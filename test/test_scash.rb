@@ -114,6 +114,22 @@ class TestScash < Minitest::Test
       assert_nil scash[:b]
       assert_equal 1337, scash[:result]
     end
+
+    it "should overwrite a global variable with same name" do
+      scash = Scash.new
+      scash.with({:a => 1}) do
+        scash.define_global_variables :result => 1337
+        assert_equal 1337, scash[:result]
+
+        scash.with({:b => 2}) do
+          assert_equal 1337, scash[:result]
+          scash.define_global_variables :result => "foo"
+          assert_equal "foo", scash[:result]
+        end
+
+        assert_equal "foo", scash[:result]
+      end
+    end
   end
 
   describe "behave like a hash" do
