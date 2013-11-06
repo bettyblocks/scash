@@ -48,7 +48,7 @@ class Scash
   end
 
   def define_global_variables(variables)
-    variables.each do |key, value|
+    variables.keys.each do |key|
       delete_key(key)
     end
 
