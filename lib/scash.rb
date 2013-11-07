@@ -10,24 +10,25 @@ class Scash
 
   attr_reader :stack
 
-  def initialize(variables = {})
-    @stack = [variables.with_indifferent_access]
+  def initialize(variables = {}, klass = HashWithIndifferentAccess)
+    @klass = klass
+    @stack = [convert(variables)]
   end
 
   def to_hash
-    @stack.inject(HashWithIndifferentAccess.new) do |hash, variables|
+    @stack.inject(@klass.new) do |hash, variables|
       variables.merge hash
     end
   end
 
   def to_inverse_hash
-    @stack.inject(HashWithIndifferentAccess.new) do |hash, variables|
+    @stack.inject(@klass.new) do |hash, variables|
       hash.merge variables
     end
   end
 
   def scope(variables)
-    @stack.unshift variables.with_indifferent_access
+    @stack.unshift convert(variables)
     yield
   ensure
     @stack.shift
@@ -51,7 +52,7 @@ class Scash
       delete_key(key)
     end
 
-    @stack.push variables.with_indifferent_access
+    @stack.push convert(variables)
   end
 
   private
@@ -59,4 +60,10 @@ class Scash
   def delete_key(key)
     @stack.each{|hash|hash.delete(key)}
   end
+
+  def convert(variables)
+    raise(ArgumentError, "Variables should respond to `keys`") unless variables.respond_to?("keys")
+    @klass.new(variables)
+  end
+
 end

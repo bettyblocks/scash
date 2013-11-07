@@ -53,7 +53,7 @@ class TestScash < Minitest::Test
 
     it "should keep scope instact when an error occurs" do
       scash = Scash.new
-      assert_raises(NoMethodError) do
+      assert_raises(ArgumentError) do
         scash.with(["a" => 1]) do
         end
       end
@@ -72,6 +72,27 @@ class TestScash < Minitest::Test
       end
       assert_equal 1, scash[:a]
       assert_equal 3, scash[:c]
+    end
+
+    it "should typecast correctly" do
+      scash = Scash.new({:a => 1})
+      assert_equal({"a" => 1}, scash.to_hash)
+      assert_equal HashWithIndifferentAccess, scash.to_hash.class
+
+      scash = Scash.new({:a => 1})
+      assert_equal({"a" => 1}, scash.to_inverse_hash)
+      assert_equal HashWithIndifferentAccess, scash.to_inverse_hash.class
+
+      class SubHash < HashWithIndifferentAccess
+      end
+
+      scash = Scash.new({:a => 1}, SubHash)
+      assert_equal({"a" => 1}, scash.to_hash)
+      assert_equal SubHash, scash.to_hash.class
+
+      scash = Scash.new({:a => 1}, SubHash)
+      assert_equal({"a" => 1}, scash.to_inverse_hash)
+      assert_equal SubHash, scash.to_inverse_hash.class
     end
 
     it "should reuse instances" do
