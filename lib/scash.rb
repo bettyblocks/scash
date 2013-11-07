@@ -13,25 +13,31 @@ class Scash
   def initialize(variables = {}, klass = HashWithIndifferentAccess)
     @klass = klass
     @stack = [convert(variables)]
+    @hashes = [build_hash]
+    @inverse_hashes = [build_inverse_hash]
+    @global_variables = {}
   end
 
   def to_hash
-    @stack.inject(@klass.new) do |hash, variables|
-      variables.merge hash
-    end
+    @hashes.first.merge(@global_variables)
   end
 
   def to_inverse_hash
-    @stack.inject(@klass.new) do |hash, variables|
-      hash.merge variables
-    end
+    @inverse_hashes.first.merge(@global_variables)
   end
 
   def scope(variables)
     @stack.unshift convert(variables)
+    added = true
+    @hashes.unshift build_hash
+    @inverse_hashes.unshift build_inverse_hash
     yield
   ensure
     @stack.shift
+    if added
+      @hashes.shift
+      @inverse_hashes.shift
+    end
   end
   alias :with :scope
 
@@ -48,14 +54,22 @@ class Scash
   end
 
   def define_global_variables(variables)
-    variables.keys.each do |key|
-      delete_key(key)
-    end
-
-    @stack.push convert(variables)
+    @global_variables.merge! convert(variables)
   end
 
   private
+
+  def build_hash(index = 0)
+    @stack[index..-1].inject(@klass.new) do |hash, variables|
+      variables.merge hash
+    end
+  end
+
+  def build_inverse_hash(index = 0)
+    @stack[index..-1].inject(@klass.new) do |hash, variables|
+      hash.merge variables
+    end
+  end
 
   def delete_key(key)
     @stack.each{|hash|hash.delete(key)}

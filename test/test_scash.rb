@@ -157,12 +157,18 @@ class TestScash < Minitest::Test
 
         scash.with({:b => 2}) do
           assert_equal 1337, scash[:result]
+          assert_equal 2, scash[:b]
           scash.define_global_variables :result => "foo"
+          scash.define_global_variables :b => "bar"
+          assert_equal "bar", scash[:b]
           assert_equal "foo", scash[:result]
         end
 
         assert_equal "foo", scash[:result]
       end
+
+      assert_equal "foo", scash[:result]
+      assert_equal "bar", scash[:b]
     end
   end
 
