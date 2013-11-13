@@ -10,20 +10,19 @@ class Scash
 
   attr_reader :stack
 
-  def initialize(variables = {}, klass = HashWithIndifferentAccess)
+  def initialize(variables = nil, klass = HashWithIndifferentAccess)
     @klass = klass
-    @stack = [convert(variables)]
-    @hashes = [build_hash]
-    @inverse_hashes = [build_inverse_hash]
-    @global_variables = {}
+    @stack = variables ? [convert(variables)] : []
+    @hashes = variables ? [build_hash] : []
+    @inverse_hashes = variables ? [build_inverse_hash] : []
   end
 
   def to_hash
-    @hashes.first.merge(@global_variables)
+    any? ? @hashes.first.merge(global_variables) : global_variables
   end
 
   def to_inverse_hash
-    @inverse_hashes.first.merge(@global_variables)
+    any? ? @inverse_hashes.first.merge(global_variables) : global_variables
   end
 
   def scope(variables)
@@ -54,10 +53,18 @@ class Scash
   end
 
   def define_global_variables(variables)
-    @global_variables.merge! convert(variables)
+    global_variables.merge! convert(variables)
   end
 
   private
+
+  def global_variables
+    @global_variables ||= @klass.new
+  end
+
+  def any?
+    @stack.any?
+  end
 
   def build_hash(index = 0)
     @stack[index..-1].inject(@klass.new) do |hash, variables|
