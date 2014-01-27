@@ -1,11 +1,11 @@
 require 'helper'
 
 describe Scash do
-  it "should be instantiable" do
-    assert scash = Scash.new
+  it "is instantiable" do
+    assert Scash.new
   end
 
-  it "should be scopable" do
+  it "is scopable" do
     scash = Scash.new
 
     assert_equal %w(), scash.keys
@@ -50,7 +50,7 @@ describe Scash do
     assert_equal %w(), scash.keys
   end
 
-  it "should keep scope instact when an error occurs" do
+  it "keeps scope instact when an error occurs" do
     scash = Scash.new
     assert_raises(ArgumentError) do
       scash.with(["a" => 1]) do
@@ -60,7 +60,7 @@ describe Scash do
     assert_equal({}, scash.to_hash)
   end
 
-  it "should accept variables in initializer" do
+  it "accepts variables in initializer" do
     scash = Scash.new({:a => 1})
     assert_equal 1, scash[:a]
     assert_equal({"a" => 1}, scash.to_hash)
@@ -73,7 +73,7 @@ describe Scash do
     assert_equal 3, scash[:c]
   end
 
-  it "should typecast correctly" do
+  it "typecasts correctly" do
     scash = Scash.new({:a => 1})
     assert_equal({"a" => 1}, scash.to_hash)
     assert_equal HashWithIndifferentAccess, scash.to_hash.class
@@ -94,7 +94,7 @@ describe Scash do
     assert_equal SubHash, scash.to_inverse_hash.class
   end
 
-  it "should reuse instances" do
+  it "reuses instances" do
     class Foo
       attr_accessor :bar
     end
@@ -125,7 +125,7 @@ describe Scash do
 end
 
 describe "global variables" do
-  it "should be able to define a global variable" do
+  it "is able to define a global variable" do
     scash = Scash.new
     scash.with({:a => 1}) do
       scash.define_global_variables :result => 1337
@@ -148,7 +148,7 @@ describe "global variables" do
     assert_equal 1337, scash[:result]
   end
 
-  it "should overwrite a global variable with same name" do
+  it "overwrites a global variable with same name" do
     scash = Scash.new
     scash.with({:a => 1}) do
       scash.define_global_variables :result => 1337
@@ -170,7 +170,7 @@ describe "global variables" do
     assert_equal "bar", scash[:b]
   end
 
-  it "should respond to merge" do
+  it "responds to merge" do
     scash = Scash.new
     scash.with({:a => 1}) do
       assert_equal({:a => 1, :b => 2}.with_indifferent_access, scash.merge(:b => 2))
