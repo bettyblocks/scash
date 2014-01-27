@@ -159,7 +159,7 @@ describe "global variables" do
         assert_equal 2, scash[:b]
         scash.define_global_variables :result => "foo"
         scash.define_global_variables :b => "bar"
-        assert_equal "bar", scash[:b]
+        assert_equal 2, scash[:b]
         assert_equal "foo", scash[:result]
       end
 

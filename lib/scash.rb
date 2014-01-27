@@ -12,31 +12,26 @@ class Scash
 
   def initialize(variables = nil, klass = HashWithIndifferentAccess)
     @klass = klass
-    @stack = variables ? [convert(variables)] : []
-    @hashes = variables ? [build_hash] : []
-    @inverse_hashes = variables ? [build_inverse_hash] : []
+    @stack = [global_variables, convert(variables)].compact
+    build!
   end
 
   def to_hash
-    any? ? @hashes.first.merge(global_variables) : global_variables
+    @hashes.first
   end
 
   def to_inverse_hash
-    any? ? @inverse_hashes.first.merge(global_variables) : global_variables
+    @inverse_hashes.first
   end
 
   def scope(variables)
     @stack.unshift convert(variables)
     added = true
-    @hashes.unshift build_hash
-    @inverse_hashes.unshift build_inverse_hash
+    build!
     yield
   ensure
-    @stack.shift
-    if added
-      @hashes.shift
-      @inverse_hashes.shift
-    end
+    @stack.shift if added
+    build!
   end
   alias :with :scope
 
@@ -54,6 +49,7 @@ class Scash
 
   def define_global_variables(variables)
     global_variables.merge! convert(variables)
+    build!
   end
 
   private
@@ -83,8 +79,20 @@ class Scash
   end
 
   def convert(variables)
+    return if variables.nil?
+
     raise(ArgumentError, "Variables should respond to `keys`") unless variables.respond_to?("keys")
-    @klass.new(variables)
+    variables.is_a?(@klass) ? variables : @klass.new(variables)
+  end
+
+  def build!
+    @hashes = stack.size.times.map do |index|
+      build_hash(index)
+    end
+
+    @inverse_hashes = stack.size.times.map do |index|
+      build_inverse_hash(index)
+    end
   end
 
 end
