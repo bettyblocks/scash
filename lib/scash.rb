@@ -12,7 +12,7 @@ class Scash
 
   def initialize(variables = nil, klass = HashWithIndifferentAccess)
     @klass = klass
-    @stack = [global_variables, convert(variables)].compact
+    @stack = [convert(variables), global_variables].compact
     build!
   end
 
@@ -64,6 +64,7 @@ class Scash
 
   def build_hash(index = 0)
     @stack[index..-1].inject(@klass.new) do |hash, variables|
+      variables.reject!{|key, value| value.nil? && @stack.last.key?(key) }
       variables.merge hash
     end
   end
