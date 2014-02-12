@@ -18,7 +18,7 @@ begin
 rescue LoadError
 end
 
-require 'scash'
+require_relative "../lib/scash"
 
 require 'minitest/autorun'
 require 'minitest/pride'

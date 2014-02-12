@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Scash do
   it "is instantiable" do
@@ -122,52 +122,52 @@ describe Scash do
     assert_equal "bar1", foo1.bar
     assert_equal "bar2", foo2.bar
   end
-end
 
-describe "global variables" do
-  it "is able to define a global variable" do
-    scash = Scash.new
-    scash.with({:a => 1}) do
-      scash.define_global_variables :result => 1337
-      assert_equal 1, scash[:a]
-      assert_equal 1337, scash[:result]
-
-      scash.with({:b => 2}) do
+  describe "global variables" do
+    it "is able to define a global variable" do
+      scash = Scash.new
+      scash.with({:a => 1}) do
+        scash.define_global_variables :result => 1337
         assert_equal 1, scash[:a]
-        assert_equal 2, scash[:b]
+        assert_equal 1337, scash[:result]
+
+        scash.with({:b => 2}) do
+          assert_equal 1, scash[:a]
+          assert_equal 2, scash[:b]
+          assert_equal 1337, scash[:result]
+        end
+
+        assert_equal 1, scash[:a]
+        assert_nil scash[:b]
         assert_equal 1337, scash[:result]
       end
 
-      assert_equal 1, scash[:a]
+      assert_nil scash[:a]
       assert_nil scash[:b]
       assert_equal 1337, scash[:result]
     end
 
-    assert_nil scash[:a]
-    assert_nil scash[:b]
-    assert_equal 1337, scash[:result]
-  end
-
-  it "overwrites a global variable with same name" do
-    scash = Scash.new
-    scash.with({:a => 1}) do
-      scash.define_global_variables :result => 1337
-      assert_equal 1337, scash[:result]
-
-      scash.with({:b => 2}) do
+    it "overwrites a global variable with same name" do
+      scash = Scash.new
+      scash.with({:a => 1}) do
+        scash.define_global_variables :result => 1337
         assert_equal 1337, scash[:result]
-        assert_equal 2, scash[:b]
-        scash.define_global_variables :result => "foo"
-        scash.define_global_variables :b => "bar"
-        assert_equal 2, scash[:b]
+
+        scash.with({:b => 2}) do
+          assert_equal 1337, scash[:result]
+          assert_equal 2, scash[:b]
+          scash.define_global_variables :result => "foo"
+          scash.define_global_variables :b => "bar"
+          assert_equal 2, scash[:b]
+          assert_equal "foo", scash[:result]
+        end
+
         assert_equal "foo", scash[:result]
       end
 
       assert_equal "foo", scash[:result]
+      assert_equal "bar", scash[:b]
     end
-
-    assert_equal "foo", scash[:result]
-    assert_equal "bar", scash[:b]
   end
 
   it "responds to merge" do
