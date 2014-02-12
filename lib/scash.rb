@@ -64,7 +64,7 @@ class Scash
 
   def build_hash(index = 0)
     @stack[index..-1].inject(@klass.new) do |hash, variables|
-      variables.reject!{|key, value| value.nil? && @stack.last.key?(key) }
+      variables = variables.reject{|key, value| value.nil? && @stack.last.key?(key) }
       variables.merge hash
     end
   end
