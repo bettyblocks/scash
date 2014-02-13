@@ -48,6 +48,7 @@ class Scash
   end
 
   def define_global_variables(variables)
+    @stack.each{|hash|variables.keys.each{|key| hash.delete(key)}}
     global_variables.merge! convert(variables)
     build!
   end
@@ -64,8 +65,6 @@ class Scash
 
   def build_hash(stack_index = 0)
     @stack[stack_index..-1].each_with_index.inject(@klass.new) do |hash, (variables, index)|
-      last = stack_index + index == @stack.size-1
-      variables = variables.reject{|key, value| variables[key].nil? && !last && @stack.last.key?(key) }
       variables.merge hash
     end
   end

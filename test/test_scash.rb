@@ -147,39 +147,7 @@ describe Scash do
       assert_equal 1337, scash[:result]
     end
 
-    it "overwrite a nil value with same name" do
-      # initial values can never be overwritten with a global-variable, except nil values
-      scash = Scash.new(:initial_a => 1337, :initial_b => nil)
-      scash.with({:a => 1, :b => nil}) do
-        assert_equal [1337, nil, 1, nil], scash.values
-        assert_equal 1337, scash[:initial_a]
-        assert_equal nil, scash[:initial_b]
-
-        scash.define_global_variables :a => "global a", :b => "global b", :c => nil
-        scash.define_global_variables :initial_a => "new a", :initial_b => "new b"
-
-        assert_equal({"a"=>1, "b"=>"global b", "c"=>nil, "initial_a"=>1337, "initial_b"=>"new b"}, scash.to_hash)
-
-        scash.with(:a => "a", :b => nil, :c => nil) do
-          assert_equal({"a" => "a", "b" => "global b", "c" => nil, "initial_a" => 1337, "initial_b" => "new b"}, scash.to_hash)
-          assert_equal "a", scash[:a]
-          assert_equal "global b", scash[:b]
-          assert_equal nil, scash[:c]
-        end
-
-        assert_equal 1, scash[:a]
-        assert_equal "global b", scash[:b]
-        assert_equal 1337, scash[:initial_a]
-        assert_equal "new b", scash[:initial_b]
-      end
-      assert_equal "global a", scash[:a]
-      assert_equal "global b", scash[:b]
-
-      assert_equal 1337, scash[:initial_a]
-      assert_equal "new b", scash[:initial_b]
-    end
-
-    it "overwrites a global variable with same name" do
+    it "overwrites earlier defined variables with same name" do
       scash = Scash.new
       scash.with({:a => 1}) do
         scash.define_global_variables :result => 1337
@@ -190,7 +158,7 @@ describe Scash do
           assert_equal 2, scash[:b]
           scash.define_global_variables :result => "foo"
           scash.define_global_variables :b => "bar"
-          assert_equal 2, scash[:b]
+          assert_equal "bar", scash[:b]
           assert_equal "foo", scash[:result]
         end
 
