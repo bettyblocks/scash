@@ -34,9 +34,9 @@ class Scash
   ensure
     variables.keys.each{|key| @hash.delete(key)}
     variables.keys.each{|key| @inverse_hash.delete(key)}
-    @hash.merge!(@global_variables)
     @inverse_hash.merge!(previous_inverse_hash)
     @hash.merge!(previous_hash)
+    @hash.merge!(@global_variables)
   end
   alias :with :scope
 
@@ -54,7 +54,7 @@ class Scash
 
   def define_global_variables(variables)
     @hash.merge! variables
-    @global_variables.merge! convert(variables)
+    @global_variables.merge! variables
   end
 
   private
