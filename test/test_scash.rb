@@ -155,13 +155,13 @@ describe Scash do
         assert_equal 1337, scash[:initial_a]
         assert_equal nil, scash[:initial_b]
 
-        scash.define_global_variables :a => "global a", :b => "global b"
+        scash.define_global_variables :a => "global a", :b => "global b", :c => nil
         scash.define_global_variables :initial_a => "new a", :initial_b => "new b"
 
-        assert_equal [1, "global b", 1337, "new b"], scash.values
+        assert_equal({"a"=>1, "b"=>"global b", "c"=>nil, "initial_a"=>1337, "initial_b"=>"new b"}, scash.to_hash)
 
         scash.with(:a => "a", :b => nil, :c => nil) do
-          assert_equal ["a", "global b", 1337, "new b", nil], scash.values # NOTE: only 1 nil value (b)
+          assert_equal({"a" => "a", "b" => "global b", "c" => nil, "initial_a" => 1337, "initial_b" => "new b"}, scash.to_hash)
           assert_equal "a", scash[:a]
           assert_equal "global b", scash[:b]
           assert_equal nil, scash[:c]

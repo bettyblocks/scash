@@ -62,9 +62,10 @@ class Scash
     @stack.any?
   end
 
-  def build_hash(index = 0)
-    @stack[index..-1].inject(@klass.new) do |hash, variables|
-      variables = variables.reject{|key, value| value.nil? && @stack.last.key?(key) }
+  def build_hash(stack_index = 0)
+    @stack[stack_index..-1].each_with_index.inject(@klass.new) do |hash, (variables, index)|
+      last = stack_index + index == @stack.size-1
+      variables = variables.reject{|key, value| value.nil? && !last && @stack.last.key?(key) }
       variables.merge hash
     end
   end
