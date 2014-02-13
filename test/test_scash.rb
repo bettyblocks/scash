@@ -6,20 +6,20 @@ describe Scash do
   end
 
   it "is scopable" do
-    scash = Scash.new
+    scash = Scash.new(:i => true)
 
-    assert_equal %w(), scash.keys
+    assert_equal %w(i), scash.keys
     scash.with({:a => 1}) do
       assert_equal 1, scash[:a]
       assert_equal 1, scash[:a, true]
       assert_equal 1, scash['a', true]
-      assert_equal %w(a), scash.keys
+      assert_equal %w(a i), scash.keys.sort
 
       scash.with({"a" => 2}) do
         assert_equal 2, scash[:a]
         assert_equal 1, scash[:a, true]
         assert_equal 1, scash['a', true]
-        assert_equal %w(a), scash.keys
+        assert_equal %w(a i), scash.keys.sort
 
         scash.with({"b" => 3}) do
           assert_equal 3, scash[:b]
@@ -32,11 +32,14 @@ describe Scash do
             assert_equal 3, scash[:b, true]
           end
         end
+
+        assert_nil scash[:b]
+        assert_nil scash[:b, true]
       end
 
       scash.with({"b" => 3}) do
         assert_equal 1, scash[:a]
-        assert_equal %w(a b), scash.keys
+        assert_equal %w(a b i), scash.keys.sort
         assert_equal 3, scash["b"]
         assert_equal 1, scash[:a, true]
         assert_equal 1, scash['a', true]
@@ -45,14 +48,22 @@ describe Scash do
       end
 
       assert_equal 1, scash[:a]
-      assert_equal %w(a), scash.keys
+      assert_equal %w(a i), scash.keys.sort
     end
-    assert_equal %w(), scash.keys
+    assert_equal %w(i), scash.keys
+
+    scash.with("a" => nil) do
+      assert_equal %w(i a), scash.keys
+      scash.with(:a => 1) do
+        assert_equal %w(i a), scash.keys
+      end
+      assert_equal %w(i a), scash.keys
+    end
   end
 
   it "keeps scope instact when an error occurs" do
     scash = Scash.new
-    assert_raises(ArgumentError) do
+    assert_raises(NoMethodError) do
       scash.with(["a" => 1]) do
       end
     end
@@ -162,6 +173,7 @@ describe Scash do
           assert_equal "foo", scash[:result]
         end
 
+        assert_equal "bar", scash[:b]
         assert_equal "foo", scash[:result]
       end
 

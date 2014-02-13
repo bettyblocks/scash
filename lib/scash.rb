@@ -10,36 +10,41 @@ class Scash
 
   attr_reader :stack
 
-  def initialize(variables = nil, klass = HashWithIndifferentAccess)
+  def initialize(variables = {}, klass = HashWithIndifferentAccess)
     @klass = klass
-    @stack = [convert(variables), global_variables].compact
-    build!
+    @hash = convert(variables)
+    @inverse_hash = convert(variables)
+    @global_variables = {}
   end
 
   def to_hash
-    @hashes.first
+    @hash
   end
 
   def to_inverse_hash
-    @inverse_hashes.first
+    @inverse_hash
   end
 
   def scope(variables)
-    @stack.unshift convert(variables)
-    added = true
-    build!
+    previous_hash = @hash.select{|key|variables.key?(key.to_s) || variables.key?(key.to_sym)}
+    previous_inverse_hash = @inverse_hash.select{|key|variables.key?(key.to_s) || variables.key?(key.to_sym)}
+    @hash.merge! variables
+    @inverse_hash.merge!(variables.reject{|key| @inverse_hash.key?(key)})
     yield
   ensure
-    @stack.shift if added
-    build!
+    variables.keys.each{|key| @hash.delete(key)}
+    variables.keys.each{|key| @inverse_hash.delete(key)}
+    @hash.merge!(@global_variables)
+    @inverse_hash.merge!(previous_inverse_hash)
+    @hash.merge!(previous_hash)
   end
   alias :with :scope
 
   def [](key, inverse = false)
     if inverse
-      to_inverse_hash[key]
+      @inverse_hash[key]
     else
-      to_hash[key]
+      @hash[key]
     end
   end
 
@@ -48,9 +53,8 @@ class Scash
   end
 
   def define_global_variables(variables)
-    @stack.each{|hash|variables.keys.each{|key| hash.delete(key)}}
-    global_variables.merge! convert(variables)
-    build!
+    @hash.merge! variables
+    @global_variables.merge! convert(variables)
   end
 
   private
@@ -59,41 +63,7 @@ class Scash
     @global_variables ||= @klass.new
   end
 
-  def any?
-    @stack.any?
-  end
-
-  def build_hash(stack_index = 0)
-    @stack[stack_index..-1].each_with_index.inject(@klass.new) do |hash, (variables, index)|
-      variables.merge hash
-    end
-  end
-
-  def build_inverse_hash(index = 0)
-    @stack[index..-1].inject(@klass.new) do |hash, variables|
-      hash.merge variables
-    end
-  end
-
-  def delete_key(key)
-    @stack.each{|hash|hash.delete(key)}
-  end
-
   def convert(variables)
-    return if variables.nil?
-
-    raise(ArgumentError, "Variables should respond to `keys`") unless variables.respond_to?("keys")
     variables.is_a?(@klass) ? variables : @klass.new(variables)
   end
-
-  def build!
-    @hashes = stack.size.times.map do |index|
-      build_hash(index)
-    end
-
-    @inverse_hashes = stack.size.times.map do |index|
-      build_inverse_hash(index)
-    end
-  end
-
 end
