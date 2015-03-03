@@ -164,6 +164,15 @@ describe Scash do
         scash.define_global_variables :result => 1337
         assert_equal 1337, scash[:result]
 
+        scash.with(({:result => 1338})) do
+          assert_equal 1338, scash[:result]
+          scash.with(({:result => 1339})) do
+            assert_equal 1339, scash[:result]
+          end
+          assert_equal 1338, scash[:result]
+        end
+        assert_equal 1337, scash[:result]
+
         scash.with({:b => 2}) do
           assert_equal 1337, scash[:result]
           assert_equal 2, scash[:b]
@@ -185,7 +194,7 @@ describe Scash do
           scash.define_global_variables :a => 3
           assert_equal 3, scash[:a]
         end
-        assert_equal 3, scash[:a]
+        assert_equal 1, scash[:a]
       end
       assert_equal 3, scash[:a]
     end

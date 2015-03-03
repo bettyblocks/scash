@@ -35,7 +35,7 @@ class Scash
     variables.keys.each{|key| @inverse_hash.delete(key)}
     @inverse_hash.merge!(previous_inverse_hash)
     @hash.merge!(previous_hash)
-    @hash.merge!(global_variables)
+    @hash.merge!(global_variables.reject { |k| @hash.has_key?(k) })
   end
   alias :with :scope
 
