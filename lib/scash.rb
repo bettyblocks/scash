@@ -31,8 +31,8 @@ class Scash
     @inverse_hash.merge!(variables.reject{|key| @inverse_hash.key?(key)})
     yield
   ensure
-    variables.keys.each{|key| @hash.delete(key)}
-    variables.keys.each{|key| @inverse_hash.delete(key)}
+    variables.each_key{|key| @hash.delete(key)}
+    variables.each_key{|key| @inverse_hash.delete(key)}
     @inverse_hash.merge!(previous_inverse_hash)
     @hash.merge!(previous_hash)
     @hash.merge!(global_variables.reject { |k| @hash.has_key?(k) })
