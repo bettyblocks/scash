@@ -1,5 +1,6 @@
 require "active_support/hash_with_indifferent_access"
 require "active_support/core_ext/hash/indifferent_access"
+require "active_support/core_ext/hash/slice"
 require "active_support/core_ext/module/delegation"
 require "scash/version"
 
@@ -25,8 +26,8 @@ class Scash
   end
 
   def scope(variables)
-    previous_hash = @hash.select{|key|variables.key?(key.to_s) || variables.key?(key.to_sym)}
-    previous_inverse_hash = @inverse_hash.select{|key|variables.key?(key.to_s) || variables.key?(key.to_sym)}
+    previous_hash = @hash.slice *variables.keys.select{|key| @hash.key?(key)}
+    previous_inverse_hash = @inverse_hash.slice *variables.keys.select{|key| @inverse_hash.key?(key)}
     @hash.merge! variables
     @inverse_hash.merge!(variables.reject{|key| @inverse_hash.key?(key)})
     yield
