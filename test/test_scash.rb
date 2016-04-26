@@ -206,4 +206,33 @@ describe Scash do
       assert_equal({:a => 1, :b => 2}.with_indifferent_access, scash.merge(:b => 2))
     end
   end
+
+  it "respects key conversion" do
+    ihash = HashWithIndifferentAccess.new(:a => 1)
+    def ihash.convert_key(key)
+      key.to_s.gsub(/^secret_/, "")
+    end
+
+    scash = Scash.new ihash
+    def scash.[](key)
+      @hash.fetch(key)
+    end
+
+    assert_equal 1, scash["a"]
+    assert_equal 1, scash[:a]
+    assert_equal 1, scash["secret_a"]
+    assert_equal 1, scash[:secret_a]
+
+    scash.with({:secret_a => 2}) do
+      assert_equal 2, scash["a"]
+      assert_equal 2, scash[:a]
+      assert_equal 2, scash["secret_a"]
+      assert_equal 2, scash[:secret_a]
+    end
+
+    assert_equal 1, scash["a"]
+    assert_equal 1, scash[:a]
+    assert_equal 1, scash["secret_a"]
+    assert_equal 1, scash[:secret_a]
+  end
 end
